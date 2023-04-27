@@ -14,6 +14,14 @@
         dest: /etc/hosts
         line: "192.168.142.102 xper-hanades02  xper-hanades02.hanab1.local  ts1.n00.xper-hanades02.hanab1.local"
         state: present  
+    - name: Setting PasswordAuthentication yes in /etc/ssh/sshd_config
+      lineinfile:
+        dest: /etc/ssh/sshd_config
+        regexp: "PasswordAuthentication no"
+        line: "PasswordAuthentication yes"
+        state: present
+      notify: 
+        - restart_sshd
     - name: Ensure Redis is present
       apt: pkg=redis-server state=latest        
     - name: Ensure Redis is started
@@ -30,4 +38,8 @@
       apt: name=nodejs      
     - name: Create repos directory
       file: dest=/home/vagrant/repos state=directory owner=vagrant group=vagrant    
-          
+  handlers:
+    - name: restart_sshd
+      service:
+        name: sshd
+        state: restarted      
