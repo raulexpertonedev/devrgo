@@ -28,6 +28,8 @@
       service: name=redis-server state=started enabled=yes   
     - name: Ensure git is present
       apt: name=git state=present
+    - name: Ensure dos2unix is present
+      apt: name=dos2unix state=present      
     - name: add apt key for nodesource
       apt_key: url=https://deb.nodesource.com/gpgkey/nodesource.gpg.key
     - name: add repo for nodesource
@@ -37,7 +39,39 @@
     - name: install nodejs
       apt: name=nodejs      
     - name: Create repos directory
-      file: dest=/home/vagrant/repos state=directory owner=vagrant group=vagrant    
+      file: dest=/home/vagrant/repos state=directory owner=vagrant group=vagrant  
+    - name: Create getdb folde in repos
+      file: dest=/home/vagrant/repos/getdb state=directory owner=vagrant group=vagrant  
+    - name: Copy getdb files in getdb repo
+      copy:
+        src: ./templates/getdb
+        dest: "/home/vagrant/repos"
+        owner: vagrant
+        group: vagrant
+    - name: Set permissions to getdb.sh
+      file:
+        path: /home/vagrant/repos/getdb/getdb.sh
+        mode: 0750
+    - name: Create a symbolic link getdb to /home/vagrant/repos/getdb/getdb.sh
+      file:
+        src: /home/vagrant/repos/getdb/getdb.sh
+        dest: /usr/bin/getdb
+        state: link        
+    - name: Declaring Ansible hosts. Writing /etc/ansible/hosts
+      template: src=./templates/ansible_hosts dest=/etc/ansible/hosts
+    - name: Create ssh expertone folder
+      file: dest="/home/vagrant/.ssh/expertone" state=directory owner=vagrant group=vagrant
+    - name: Generating SSH keys
+      openssh_keypair:
+        path: /home/vagrant/.ssh/expertone/xperhanades02
+        type: rsa
+        size: 4096
+        state: present
+        force: no
+        owner: vagrant
+        group: vagrant
+    - name: Editing ssh config. Writing /home/vagrant/.ssh/config
+      template: src=templates/ssh_config dest=/home/vagrant/.ssh/config owner=vagrant group=vagrant        
   handlers:
     - name: restart_sshd
       service:

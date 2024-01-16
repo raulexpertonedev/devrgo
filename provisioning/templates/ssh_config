@@ -1,0 +1,4 @@
+Host xper-hanades02
+    HostName xper-hanades02
+    User rgodev
+    IdentityFile /home/vagrant/.ssh/expertone/xperhanades02
