@@ -62,7 +62,7 @@ mkdir -p "./db/$schema/$type/$object"
 
 echo "Downloading $type: $schema.$object in ./db/$schema/$type/$object"
 
-ansible-playbook "$HOME/repos/getdb/rgogetdbartifact-playbook.yml" --extra-vars="current_path=$(pwd) type=$type schema=$schema object=$object"
+ansible-playbook "$HOME/repos/recordgo/rgo_get_db_artifact/rgogetdbartifact-playbook.yml" --extra-vars="current_path=$(pwd) type=$type schema=$schema object=$object"
 
 if [[ $? -ne 0 ]];
 then
@@ -73,4 +73,3 @@ fi
 dos2unix $(find ./db/$schema/$type/$object/ -type f -exec grep -Iq . {} \; -print)
 
 echo "$schema.$object downloaded"
-

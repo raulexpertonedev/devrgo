@@ -38,23 +38,21 @@
         update_cache: yes
     - name: install nodejs
       apt: name=nodejs      
-    - name: Create repos directory
-      file: dest=/home/vagrant/repos state=directory owner=vagrant group=vagrant  
-    - name: Create getdb folde in repos
-      file: dest=/home/vagrant/repos/getdb state=directory owner=vagrant group=vagrant  
-    - name: Copy getdb files in getdb repo
+    - name: Create recordgo directory
+      file: dest=/home/vagrant/repos/recordgo state=directory owner=vagrant group=vagrant  
+    - name: Copy rgo_get_db_artifact files
       copy:
-        src: ./templates/getdb
-        dest: "/home/vagrant/repos"
+        src: ./templates/rgo_get_db_artifact
+        dest: "/home/vagrant/repos/recordgo/"
         owner: vagrant
         group: vagrant
     - name: Set permissions to getdb.sh
       file:
-        path: /home/vagrant/repos/getdb/getdb.sh
+        path: /home/vagrant/repos/recordgo/rgo_get_db_artifact/getdb.sh
         mode: 0750
-    - name: Create a symbolic link getdb to /home/vagrant/repos/getdb/getdb.sh
+    - name: Create a symbolic link getdb to /home/vagrant/repos/recordgo/rgo_get_db_artifact/getdb.sh
       file:
-        src: /home/vagrant/repos/getdb/getdb.sh
+        src: /home/vagrant/repos/recordgo/rgo_get_db_artifact/getdb.sh
         dest: /usr/bin/getdb
         state: link        
     - name: Declaring Ansible hosts. Writing /etc/ansible/hosts
