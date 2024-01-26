@@ -46,14 +46,28 @@
         dest: "/home/vagrant/repos/recordgo/"
         owner: vagrant
         group: vagrant
-    - name: Set permissions to getdb.sh
+    - name: Copy rgo_get_xs files
+      copy:
+        src: ./templates/rgo_get_xs
+        dest: "/home/vagrant/repos/recordgo/"
+        owner: vagrant
+        group: vagrant        
+    - name: Set permissions to getdb.sh and getxs.sh
       file:
-        path: /home/vagrant/repos/recordgo/rgo_get_db_artifact/getdb.sh
+        path: "{{ item }}"
         mode: 0750
+      loop:
+        - /home/vagrant/repos/recordgo/rgo_get_db_artifact/getdb.sh
+        - /home/vagrant/repos/recordgo/rgo_get_xs/getxs.sh
     - name: Create a symbolic link getdb to /home/vagrant/repos/recordgo/rgo_get_db_artifact/getdb.sh
       file:
         src: /home/vagrant/repos/recordgo/rgo_get_db_artifact/getdb.sh
         dest: /usr/bin/getdb
+        state: link        
+    - name: Create a symbolic link getxs to /home/vagrant/repos/recordgo/rgo_get_xs/getxs.sh
+      file:
+        src: /home/vagrant/repos/recordgo/rgo_get_xs/getxs.sh
+        dest: /usr/bin/getxs
         state: link        
     - name: Declaring Ansible hosts. Writing /etc/ansible/hosts
       template: src=./templates/ansible_hosts dest=/etc/ansible/hosts
