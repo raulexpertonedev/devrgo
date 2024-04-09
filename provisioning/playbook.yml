@@ -167,7 +167,7 @@
               IdentityFile /home/vagrant/.ssh/expertone/vm-sap-host-05
           Host xperhanades02
               HostName xperhanades02
-              User RGazureAdmin
+              User rgodev
               IdentityFile /home/vagrant/.ssh/expertone/xperhanades02
         marker: "# {mark} ANSIBLE MANAGED BLOCK"
         create: yes
