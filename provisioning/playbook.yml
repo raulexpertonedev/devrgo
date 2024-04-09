@@ -146,33 +146,7 @@
         - vm-sap-host-05
         - xperhanades02
     - name: Editing ssh config. Writing /home/vagrant/.ssh/config with all servers including xperhanades02
-      blockinfile:
-        path: /home/vagrant/.ssh/config
-        block: |
-          Host vm-sap-cockpit
-              HostName vm-sap-cockpit
-              User RGazureAdmin
-              IdentityFile /home/vagrant/.ssh/expertone/vm-sap-cockpit
-          Host vm-sap-hana
-              HostName vm-sap-hana
-              User RGazureAdmin
-              IdentityFile /home/vagrant/.ssh/expertone/vm-sap-hana
-          Host vm-sap-host-01
-              HostName vm-sap-host-01
-              User RGazureAdmin
-              IdentityFile /home/vagrant/.ssh/expertone/vm-sap-host-01
-          Host vm-sap-host-05
-              HostName vm-sap-host-05
-              User RGazureAdmin
-              IdentityFile /home/vagrant/.ssh/expertone/vm-sap-host-05
-          Host xperhanades02
-              HostName xperhanades02
-              User rgodev
-              IdentityFile /home/vagrant/.ssh/expertone/xperhanades02
-        marker: "# {mark} ANSIBLE MANAGED BLOCK"
-        create: yes
-        owner: vagrant
-        group: vagrant
+      template: src=templates/ssh_config dest=/home/vagrant/.ssh/config owner=vagrant group=vagrant        
   handlers:
     - name: restart_sshd
       service:
