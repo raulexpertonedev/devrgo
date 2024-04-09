@@ -7,39 +7,75 @@
   tasks:
     - name: Make sure we can connect
       ping:
-    - name: apt-get update 
-      apt: update_cache=yes    
+    - name: apt-get update
+      apt:
+        update_cache: yes
     - name: adding xper-hanades02 to /etc/hosts
       lineinfile:
         dest: /etc/hosts
         line: "192.168.142.102 xper-hanades02  xper-hanades02.hanab1.local  ts1.n00.xper-hanades02.hanab1.local"
-        state: present  
+        state: present
+    - name: adding vm-sap-cockpit to /etc/hosts
+      lineinfile:
+        dest: /etc/hosts
+        line: "172.20.8.5 vm-sap-cockpit"
+        state: present
+    - name: adding vm-sap-hana to /etc/hosts
+      lineinfile:
+        dest: /etc/hosts
+        line: "172.20.8.6 vm-sap-hana"
+        state: present
+    - name: adding VM-SAP-HOST-01 to /etc/hosts
+      lineinfile:
+        dest: /etc/hosts
+        line: "172.20.8.13 VM-SAP-HOST-01"
+        state: present
+    - name: adding VM-SAP-HOST-05 to /etc/hosts
+      lineinfile:
+        dest: /etc/hosts
+        line: "172.20.8.11 VM-SAP-HOST-05"
+        state: present
     - name: Setting PasswordAuthentication yes in /etc/ssh/sshd_config
       lineinfile:
         dest: /etc/ssh/sshd_config
-        regexp: "PasswordAuthentication no"
+        regexp: "^PasswordAuthentication no"
         line: "PasswordAuthentication yes"
         state: present
-      notify: 
+      notify:
         - restart_sshd
     - name: Ensure Redis is present
-      apt: pkg=redis-server state=latest        
+      apt:
+        pkg: redis-server
+        state: latest
     - name: Ensure Redis is started
-      service: name=redis-server state=started enabled=yes   
+      service:
+        name: redis-server
+        state: started
+        enabled: yes
     - name: Ensure git is present
-      apt: name=git state=present
+      apt:
+        name: git
+        state: present
     - name: Ensure dos2unix is present
-      apt: name=dos2unix state=present      
+      apt:
+        name: dos2unix
+        state: present
     - name: add apt key for nodesource
-      apt_key: url=https://deb.nodesource.com/gpgkey/nodesource.gpg.key
+      apt_key:
+        url: https://deb.nodesource.com/gpgkey/nodesource.gpg.key
     - name: add repo for nodesource
       apt_repository:
-        repo: 'deb https://deb.nodesource.com/node_16.x {{ ansible_distribution_release }} main' 
+        repo: "deb https://deb.nodesource.com/node_16.x {{ ansible_distribution_release }} main"
         update_cache: yes
     - name: install nodejs
-      apt: name=nodejs      
+      apt:
+        name: nodejs
     - name: Create recordgo directory
-      file: dest=/home/vagrant/repos/recordgo state=directory owner=vagrant group=vagrant  
+      file:
+        dest: /home/vagrant/repos/recordgo
+        state: directory
+        owner: vagrant
+        group: vagrant
     - name: Copy rgo_get_db_artifact files
       copy:
         src: ./templates/rgo_get_db_artifact
@@ -51,7 +87,7 @@
         src: ./templates/rgo_get_xs
         dest: "/home/vagrant/repos/recordgo/"
         owner: vagrant
-        group: vagrant        
+        group: vagrant
     - name: Set permissions to getdb.sh and getxs.sh
       file:
         path: "{{ item }}"
@@ -59,33 +95,86 @@
       loop:
         - /home/vagrant/repos/recordgo/rgo_get_db_artifact/getdb.sh
         - /home/vagrant/repos/recordgo/rgo_get_xs/getxs.sh
+    - name: Copy rgogetschema files
+      copy:
+        src: ./templates/rgogetschema
+        dest: "/home/vagrant/repos/recordgo/"
+        owner: vagrant
+        group: vagrant
+    - name: Copy rgoimportschema files
+      copy:
+        src: ./templates/rgoimportschema
+        dest: "/home/vagrant/repos/recordgo/"
+        owner: vagrant
+        group: vagrant
+    - name: Set permissions to  rgogetschema, rgoimportschema scripts
+      file:
+        path: "{{ item }}"
+        mode: 0750
+      loop:
+        - /home/vagrant/repos/recordgo/rgogetschema/templates/export.sh
+        - /home/vagrant/repos/recordgo/rgoimportschema
     - name: Create a symbolic link getdb to /home/vagrant/repos/recordgo/rgo_get_db_artifact/getdb.sh
       file:
         src: /home/vagrant/repos/recordgo/rgo_get_db_artifact/getdb.sh
         dest: /usr/bin/getdb
-        state: link        
+        state: link
     - name: Create a symbolic link getxs to /home/vagrant/repos/recordgo/rgo_get_xs/getxs.sh
       file:
         src: /home/vagrant/repos/recordgo/rgo_get_xs/getxs.sh
         dest: /usr/bin/getxs
-        state: link        
-    - name: Declaring Ansible hosts. Writing /etc/ansible/hosts
-      template: src=./templates/ansible_hosts dest=/etc/ansible/hosts
+        state: link
     - name: Create ssh expertone folder
-      file: dest="/home/vagrant/.ssh/expertone" state=directory owner=vagrant group=vagrant
-    - name: Generating SSH keys
+      file:
+        dest: "/home/vagrant/.ssh/expertone"
+        state: directory
+        owner: vagrant
+        group: vagrant
+    - name: Generating SSH keys for multiple servers including xperhanades02
       openssh_keypair:
-        path: /home/vagrant/.ssh/expertone/xperhanades02
+        path: "/home/vagrant/.ssh/expertone/{{ item }}"
         type: rsa
         size: 4096
         state: present
         force: no
         owner: vagrant
         group: vagrant
-    - name: Editing ssh config. Writing /home/vagrant/.ssh/config
-      template: src=templates/ssh_config dest=/home/vagrant/.ssh/config owner=vagrant group=vagrant        
+      loop:
+        - vm-sap-cockpit
+        - vm-sap-hana
+        - vm-sap-host-01
+        - vm-sap-host-05
+        - xperhanades02
+    - name: Editing ssh config. Writing /home/vagrant/.ssh/config with all servers including xperhanades02
+      blockinfile:
+        path: /home/vagrant/.ssh/config
+        block: |
+          Host vm-sap-cockpit
+              HostName vm-sap-cockpit
+              User RGazureAdmin
+              IdentityFile /home/vagrant/.ssh/expertone/vm-sap-cockpit
+          Host vm-sap-hana
+              HostName vm-sap-hana
+              User RGazureAdmin
+              IdentityFile /home/vagrant/.ssh/expertone/vm-sap-hana
+          Host vm-sap-host-01
+              HostName vm-sap-host-01
+              User RGazureAdmin
+              IdentityFile /home/vagrant/.ssh/expertone/vm-sap-host-01
+          Host vm-sap-host-05
+              HostName vm-sap-host-05
+              User RGazureAdmin
+              IdentityFile /home/vagrant/.ssh/expertone/vm-sap-host-05
+          Host xperhanades02
+              HostName xperhanades02
+              User RGazureAdmin
+              IdentityFile /home/vagrant/.ssh/expertone/xperhanades02
+        marker: "# {mark} ANSIBLE MANAGED BLOCK"
+        create: yes
+        owner: vagrant
+        group: vagrant
   handlers:
     - name: restart_sshd
       service:
         name: sshd
-        state: restarted      
+        state: restarted

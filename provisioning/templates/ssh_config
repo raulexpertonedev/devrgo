@@ -2,3 +2,26 @@ Host xper-hanades02
     HostName xper-hanades02
     User rgodev
     IdentityFile /home/vagrant/.ssh/expertone/xperhanades02
+
+Host vm-sap-cockpit
+    HostName vm-sap-cockpit
+    User RGazureAdmin
+    Identityfile /home/vagrant/.ssh/expertone/vm-sap-cockpit
+
+
+Host vm-sap-hana
+    HostName vm-sap-hana
+    User RGazureAdmin
+    Identityfile /home/vagrant/.ssh/expertone/vm-sap-hana
+
+
+Host vm-sap-host-01
+    HostName vm-sap-host-01
+    User RGazureAdmin
+    Identityfile /home/vagrant/.ssh/expertone/vm-sap-host-01
+
+
+Host vm-sap-host-05
+    HostName vm-sap-host-05
+    User RGazureAdmin
+    Identityfile /home/vagrant/.ssh/expertone/vm-sap-host-05
