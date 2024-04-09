@@ -4,7 +4,7 @@ Vagrant.configure(2) do |config|
   config.vm.network "private_network", ip: "192.168.33.20"
   config.vm.provider "virtualbox" do |vb|
     # vb.gui = true
-    vb.memory = "2048"    
+    vb.memory = "8192"    
   end
   config.vm.provision "ansible_local" do |ansible|
     ansible.playbook ="provisioning/playbook.yml"
